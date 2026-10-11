@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block body %}
+
+<div class="grid stats">
+  <div class="card stat"><b>{{ total_rules }}</b><span>Rules triggered</span></div>
+  <div class="card stat"><b>{{ total_events }}</b><span>Matching events</span></div>
+  <div class="card stat"><b>{{ planned_ok }}/{{ planned_total }}</b><span>Techniques detected</span></div>
+  <div class="card stat"><b>{{ iocs|length }}</b><span>IOCs</span></div>
+  <div class="card stat"><b>{{ yara|length }}</b><span>YARA hits</span></div>
+</div>
+
+<div class="grid two">
+  <div class="card">
+    <h2>MITRE ATT&amp;CK coverage</h2>
+    <table>
+      <tr><th>Technique</th><th>Name</th><th>Status</th><th>Events</th><th></th></tr>
+      {% for c in coverage %}
+      <tr>
+        <td><a class="tech" href="{{ technique_url(c.id) }}" target="_blank" rel="noopener">{{ c.id }}</a></td>
+        <td>{{ c.name }}</td>
+        <td>{% if c.ok %}<span class="ok">Detected</span>{% else %}<span class="miss">No detection</span>{% endif %}</td>
+        <td>{{ c.events }}</td>
+        <td style="width:30%"><div class="bar" style="width: {{ (c.events / max_events * 100)|round|int }}%"></div></td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="card">
+    <h2>Severity</h2>
+    <table>
+      {% for l in all_levels %}
+      <tr><td><span class="badge {{ l }}">{{ l }}</span></td><td>{{ by_level[l] }} rule(s)</td></tr>
+      {% else %}
+      <tr><td class="muted">No detections loaded. Run scripts/02_detect.py first.</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <h2>Detections</h2>
+  <form class="filters" method="get">
+    <input name="q" placeholder="Search title, image, command..." value="{{ filters.q }}">
+    <select name="technique">
+      <option value="">All techniques</option>
+      {% for t in all_techniques %}<option value="{{ t }}" {{ 'selected' if filters.technique == t }}>{{ t }} {{ TECHNIQUES.get(t, '') }}</option>{% endfor %}
+    </select>
+    <select name="level">
+      <option value="">All levels</option>
+      {% for l in all_levels %}<option value="{{ l }}" {{ 'selected' if filters.level == l }}>{{ l }}</option>{% endfor %}
+    </select>
+    <select name="file">
+      <option value="">All log files</option>
+      {% for f in all_files %}<option value="{{ f }}" {{ 'selected' if filters.file == f }}>{{ f }}</option>{% endfor %}
+    </select>
+    <button type="submit">Filter</button>
+    <a href="/" style="align-self:center">Reset</a>
+  </form>
+  <table>
+    <tr><th>Level</th><th>Rule</th><th>ATT&amp;CK</th><th>Tactic</th><th>Events</th><th>First seen</th><th>Process / detail</th><th>Log</th></tr>
+    {% for r in rows %}
+    <tr>
+      <td><span class="badge {{ r.level }}">{{ r.level }}</span></td>
+      <td><a href="/detection/{{ r.id }}">{{ r.title }}</a></td>
+      <td>{% for t in r.techniques %}<a class="tech" href="{{ technique_url(t) }}" target="_blank" rel="noopener">{{ t }}</a>{% endfor %}</td>
+      <td>{{ r.tactics|join(', ') }}</td>
+      <td>{{ r.count }}</td>
+      <td class="mono">{{ r.time }}</td>
+      <td class="mono">{{ r.image }}<br><span class="muted">{{ r.detail[:140] }}</span></td>
+      <td class="mono">{{ r.file }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="8" class="muted">No detections match.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="grid two">
+  <div class="card">
+    <h2>Indicators of compromise</h2>
+    <table>
+      <tr><th>Type</th><th>Value</th><th>ATT&amp;CK</th><th>Enrichment</th></tr>
+      {% for i in iocs %}
+      <tr>
+        <td>{{ i.type }}</td>
+        <td class="mono">{{ i.value }}<br><span class="muted">{{ i.context }}</span></td>
+        <td>{{ i.mitre }}</td>
+        <td>{% if i.vt_link %}<a href="{{ i.vt_link }}" target="_blank" rel="noopener">{{ i.vt }}</a>{% else %}{{ i.vt or '-' }}{% endif %}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="muted">No IOCs yet. Run scripts/04_enrich_iocs.py.</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="card">
+    <h2>YARA file detections</h2>
+    <table>
+      <tr><th>Rule</th><th>ATT&amp;CK</th><th>File</th></tr>
+      {% for y in yara %}
+      <tr><td>{{ y.rule }}<br><span class="muted">{{ y.description }}</span></td><td>{{ y.mitre }}</td><td class="mono">{{ y.file }}</td></tr>
+      {% else %}
+      <tr><td colspan="3" class="muted">No YARA hits yet. Run scripts/03_yara_scan.py.</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+{% endblock %}

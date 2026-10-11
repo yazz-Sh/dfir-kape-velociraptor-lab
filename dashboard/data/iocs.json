@@ -1,0 +1,163 @@
+[
+  {
+    "type": "sha256",
+    "value": "4193f529bff2729769d82cb83ee206d2af16c59208d6dc5cd8b54cd9c6703a11",
+    "context": "C:\\Windows\\System32\\rundll32.exe (LSASS Dump Command Line (T1003.001))",
+    "mitre": "T1003.001",
+    "source": "T1003.001.json"
+  },
+  {
+    "type": "sha256",
+    "value": "3c4c4fe2fc5590a6af5e5f73b7277da8785695e6a131d255943a88e43cdd2a6a",
+    "context": "C:\\Windows\\System32\\wevtutil.exe (Suspicious Eventlog Clearing or Configuration Change Activity)",
+    "mitre": "T1685.005, T1685.001",
+    "source": "T1003.001__community.json"
+  },
+  {
+    "type": "sha256",
+    "value": "b96af3066f0b9de8a460f77baae006c5372a266be18c561daa7c7ae8635d399d",
+    "context": "C:\\Windows\\System32\\schtasks.exe (Scheduled Task Creation (T1053.005))",
+    "mitre": "T1053.005",
+    "source": "T1053.005.json"
+  },
+  {
+    "type": "command",
+    "value": "schtasks  /create /tn \"T1053_005_OnLogon\" /sc onlogon /tr \"cmd.exe /c calc.exe\" ",
+    "context": "Scheduled Task Creation (T1053.005)",
+    "mitre": "T1053.005",
+    "source": "T1053.005.json"
+  },
+  {
+    "type": "command",
+    "value": "schtasks  /create /tn \"T1053_005_OnStartup\" /sc onstart /ru system /tr \"cmd.exe /c calc.exe\"",
+    "context": "Scheduled Task Creation (T1053.005)",
+    "mitre": "T1053.005",
+    "source": "T1053.005.json"
+  },
+  {
+    "type": "command",
+    "value": "SCHTASKS  /Create /SC ONCE /TN spawn /TR C:\\windows\\system32\\cmd.exe /ST 20:10",
+    "context": "Scheduled Task Creation (T1053.005)",
+    "mitre": "T1053.005",
+    "source": "T1053.005.json"
+  },
+  {
+    "type": "sha256",
+    "value": "0ff6f2c94bc7e2833a5f7e16de1622e5dba70396f31c7d5f56381870317e8c46",
+    "context": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe (Scheduled Task Creation (T1053.005))",
+    "mitre": "T1053.005",
+    "source": "T1053.005.json"
+  },
+  {
+    "type": "command",
+    "value": "\"C:\\WINDOWS\\system32\\schtasks.exe\" /Create /SC ONCE /TN dfir_lab_task /TR C:\\Windows\\System32\\cmd.exe /ST 23:59 /F",
+    "context": "Scheduled Task Creation (T1053.005)",
+    "mitre": "T1053.005",
+    "source": "T1053.005.json"
+  },
+  {
+    "type": "command",
+    "value": "\"C:\\WINDOWS\\system32\\schtasks.exe\" /Delete /TN dfir_lab_task /F",
+    "context": "Windows Shell/Scripting Processes Spawning Suspicious Programs",
+    "mitre": "T1059.005, T1059.001, T1218",
+    "source": "T1053.005__community.json"
+  },
+  {
+    "type": "sha256",
+    "value": "64afc6db3aad1289533662e2d79e27dd55c7dcdb8cd918b08e145ad82ad5acb4",
+    "context": "C:\\Windows\\System32\\cmd.exe (File Deletion Via Del)",
+    "mitre": "T1070.004",
+    "source": "T1053.005__community.json"
+  },
+  {
+    "type": "sha256",
+    "value": "23240ef9f8b0a9a324110b1c2331de31dc1b0e08f5359cb707e51a939af56cd3",
+    "context": "C:\\Windows\\System32\\whoami.exe (Local Accounts Discovery)",
+    "mitre": "T1033, T1087.001",
+    "source": "T1053.005__community.json"
+  },
+  {
+    "type": "sha256",
+    "value": "09f140c931ba889345b95a9a78fce668afad0662c336e31078dbd62d5421cea0",
+    "context": "C:\\Windows\\System32\\HOSTNAME.EXE (Suspicious Execution of Hostname)",
+    "mitre": "T1082",
+    "source": "T1053.005__community.json"
+  },
+  {
+    "type": "sha256",
+    "value": "46809206887326d2d24db1eff1f3064de972c3451abe766b49111450a5e08e00",
+    "context": "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\csc.exe (Dynamic .NET Compilation Via Csc.EXE - Hunting)",
+    "mitre": "T1027.004",
+    "source": "T1059.001__community.json"
+  },
+  {
+    "type": "ip",
+    "value": "23.46.189.152",
+    "context": "Network Connection Initiated By PowerShell Process",
+    "mitre": "T1059.001",
+    "source": "T1059.001__community.json"
+  },
+  {
+    "type": "ip",
+    "value": "150.171.110.54",
+    "context": "Network Connection Initiated By PowerShell Process",
+    "mitre": "T1059.001",
+    "source": "T1059.001__community.json"
+  },
+  {
+    "type": "ip",
+    "value": "150.171.110.52",
+    "context": "Network Connection Initiated By PowerShell Process",
+    "mitre": "T1059.001",
+    "source": "T1059.001__community.json"
+  },
+  {
+    "type": "ip",
+    "value": "95.101.35.58",
+    "context": "Network Connection Initiated By PowerShell Process",
+    "mitre": "T1059.001",
+    "source": "T1059.001__community.json"
+  },
+  {
+    "type": "registry",
+    "value": "HKU\\S-1-5-21-1453239332-2949236966-4183890148-1001\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Atomic Red Team = C:\\Path\\AtomicRedTeam.exe",
+    "context": "Registry Run Key Persistence (T1547.001)",
+    "mitre": "T1547.001",
+    "source": "T1547.001.json"
+  },
+  {
+    "type": "registry",
+    "value": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnceEx\\0001\\Depend\\1 = C:\\Path\\AtomicRedTeam.dll",
+    "context": "CurrentVersion Autorun Keys Modification",
+    "mitre": "T1547.001",
+    "source": "T1547.001__community.json"
+  },
+  {
+    "type": "sha256",
+    "value": "ef37663b44ac66920c6f33694deea01acb78ae3f3012884819373fa04c3eb5f0",
+    "context": "C:\\Windows\\System32\\reg.exe (Direct Autorun Keys Modification)",
+    "mitre": "T1547.001",
+    "source": "T1547.001__community.json"
+  },
+  {
+    "type": "registry",
+    "value": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Atomic Red Team",
+    "context": "Run key written by the T1547.001 test (verify the name in your Sysmon log)",
+    "mitre": "T1547.001",
+    "source": "seed_iocs.csv"
+  },
+  {
+    "type": "command",
+    "value": "schtasks /Create /SC ONCE /TN dfir_lab_task /TR cmd.exe",
+    "context": "Scheduled task created by 01_run_atomics.ps1 fallback",
+    "mitre": "T1053.005",
+    "source": "seed_iocs.csv"
+  },
+  {
+    "type": "file",
+    "value": "lsass-comsvcs.dmp",
+    "context": "LSASS dump file name used by the comsvcs.dll atomic test (verify in your logs)",
+    "mitre": "T1003.001",
+    "source": "seed_iocs.csv"
+  }
+]

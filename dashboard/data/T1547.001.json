@@ -1,0 +1,21 @@
+[{
+  "title": "Registry Run Key Persistence (T1547.001)",
+  "id": "7f3c2a10-5b1e-4c0a-9d1f-2a6b8c4e1002",
+  "description": "Detects a value being written under the Run or RunOnce registry keys (Sysmon Event ID 13).",
+  "sigmafile": "",
+  "sigma": [
+    "SELECT * FROM logs WHERE Channel='Microsoft-Windows-Sysmon/Operational' AND (EventID=13 AND (TargetObject LIKE '%\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\\\\%' ESCAPE '\\' OR TargetObject LIKE '%\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\RunOnce\\\\%' ESCAPE '\\'))"
+  ],
+  "rule_level": "medium",
+  "tags": [
+    "attack.persistence",
+    "attack.privilege_escalation",
+    "attack.t1547.001"
+  ],
+  "count": 1
+,
+  "matches": [
+{"row_id":19,"Channel":"Microsoft-Windows-Sysmon/Operational","Computer":"DESKTOP-H5QIEPU","Details":"C:\\Path\\AtomicRedTeam.exe","EventID":13,"EventRecordID":15169,"EventType":"SetValue","Execution_ProcessID":3128,"Execution_ThreadID":4068,"Guid":"5770385F-C22A-43E0-BF4C-06F5698FFBD9","Image":"C:\\WINDOWS\\system32\\reg.exe","Keywords":"0x8000000000000000","Level":4,"Opcode":0,"OriginalLogfile":"T1547.001.evtx","ProcessGuid":"1585FEFF-7FFF-6ACA-2003-000000000E00","ProcessId":10116,"Provider_Name":"Microsoft-Windows-Sysmon","RuleName":"T1060,RunKey","SystemTime":"2026-10-10T18:12:15.822964Z","TargetObject":"HKU\\S-1-5-21-1453239332-2949236966-4183890148-1001\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Atomic Red Team","Task":13,"User":"DESKTOP-H5QIEPU\\Victim-DFIR","UserID":"S-1-5-18","UtcTime":"2026-10-10 18:12:15.821","Version":2}
+
+  ]
+}]

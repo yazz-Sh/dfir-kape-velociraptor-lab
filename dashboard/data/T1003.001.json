@@ -1,0 +1,20 @@
+[{
+  "title": "LSASS Dump Command Line (T1003.001)",
+  "id": "7f3c2a10-5b1e-4c0a-9d1f-2a6b8c4e1005",
+  "description": "Detects command lines used to dump LSASS memory (comsvcs.dll MiniDump, procdump, mimikatz). Still fires when Defender blocks the dump itself.",
+  "sigmafile": "",
+  "sigma": [
+    "SELECT * FROM logs WHERE Channel='Microsoft-Windows-Sysmon/Operational' AND (EventID=1 AND ((CommandLine LIKE '%comsvcs%' ESCAPE '\\' AND CommandLine LIKE '%MiniDump%' ESCAPE '\\') OR (CommandLine LIKE '%procdump%' ESCAPE '\\' AND CommandLine LIKE '%lsass%' ESCAPE '\\') OR (CommandLine LIKE '%sekurlsa::%' ESCAPE '\\' OR CommandLine LIKE '%Invoke-Mimikatz%' ESCAPE '\\')))"
+  ],
+  "rule_level": "high",
+  "tags": [
+    "attack.credential_access",
+    "attack.t1003.001"
+  ],
+  "count": 1
+,
+  "matches": [
+{"row_id":2,"Channel":"Microsoft-Windows-Sysmon/Operational","CommandLine":"\"C:\\WINDOWS\\system32\\rundll32.exe\" C:\\Windows\\System32\\comsvcs.dll MiniDump 828 C:\\Windows\\Temp\\lsass-comsvcs.dmp full","Company":"Microsoft Corporation","Computer":"DESKTOP-H5QIEPU","CurrentDirectory":"C:\\Users\\Victim-DFIR\\","Description":"Windows host process (Rundll32)","EventID":1,"EventRecordID":15456,"Execution_ProcessID":3128,"Execution_ThreadID":4068,"FileVersion":"10.0.26100.7309 (WinBuild.160101.0800)","Guid":"5770385F-C22A-43E0-BF4C-06F5698FFBD9","Hashes":"MD5=BB65029E6ADC1C632492BCFB948E495B,SHA256=4193F529BFF2729769D82CB83EE206D2AF16C59208D6DC5CD8B54CD9C6703A11,IMPHASH=C8B70D465C35D895C4171BAF042BB63A","IMPHASH":"C8B70D465C35D895C4171BAF042BB63A","Image":"C:\\Windows\\System32\\rundll32.exe","IntegrityLevel":"High","Keywords":"0x8000000000000000","Level":4,"LogonGuid":"1585FEFF-7914-6ACA-7AC4-070000000000","LogonId":"0x7c47a","MD5":"BB65029E6ADC1C632492BCFB948E495B","Opcode":0,"OriginalFileName":"RUNDLL32.EXE","OriginalLogfile":"T1003.001.evtx","ParentCommandLine":"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","ParentImage":"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","ParentProcessGuid":"1585FEFF-796A-6ACA-E800-000000000E00","ParentProcessId":816,"ParentUser":"DESKTOP-H5QIEPU\\Victim-DFIR","ProcessGuid":"1585FEFF-85F8-6ACA-1E04-000000000E00","ProcessId":10384,"Product":"Microsoft® Windows® Operating System","Provider_Name":"Microsoft-Windows-Sysmon","RuleName":"-","SHA256":"4193F529BFF2729769D82CB83EE206D2AF16C59208D6DC5CD8B54CD9C6703A11","SystemTime":"2026-10-10T18:37:44.398269Z","Task":1,"TerminalSessionId":1,"User":"DESKTOP-H5QIEPU\\Victim-DFIR","UserID":"S-1-5-18","UtcTime":"2026-10-10 18:37:44.397","Version":5}
+
+  ]
+}]

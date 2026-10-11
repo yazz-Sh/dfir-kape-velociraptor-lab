@@ -1,0 +1,42 @@
+[
+  {
+    "rule": "LSASS_Dump_Tooling",
+    "file": "C:\\DFIRframework\\yara_samples\\test_lsass.txt",
+    "mitre": "T1003.001",
+    "severity": "high",
+    "description": "References to LSASS dumping techniques",
+    "scanned_at": "2026-10-11T12:49:15"
+  },
+  {
+    "rule": "Atomic_Red_Team_Marker",
+    "file": "C:\\DFIRframework\\yara_samples\\test_marker.txt",
+    "mitre": "multiple",
+    "severity": "info",
+    "description": "Artifacts created by Atomic Red Team tests",
+    "scanned_at": "2026-10-11T12:49:15"
+  },
+  {
+    "rule": "PS_Download_Cradle",
+    "file": "C:\\DFIRframework\\yara_samples\\test_ps_cradle.ps1",
+    "mitre": "T1059.001",
+    "severity": "medium",
+    "description": "PowerShell download cradle / in-memory execution",
+    "scanned_at": "2026-10-11T12:49:23"
+  },
+  {
+    "rule": "Persistence_RunKey_Script",
+    "file": "C:\\DFIRframework\\yara_samples\\test_runkey.bat",
+    "mitre": "T1547.001",
+    "severity": "medium",
+    "description": "Script or .reg content writing a Run/RunOnce autostart value",
+    "scanned_at": "2026-10-11T12:49:23"
+  },
+  {
+    "rule": "Persistence_ScheduledTask_Script",
+    "file": "C:\\DFIRframework\\yara_samples\\test_schtask.bat",
+    "mitre": "T1053.005",
+    "severity": "medium",
+    "description": "Script creating a scheduled task",
+    "scanned_at": "2026-10-11T12:49:23"
+  }
+]

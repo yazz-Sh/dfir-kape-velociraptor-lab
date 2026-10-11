@@ -1,0 +1,4 @@
+type,value,context,mitre
+registry,HKCU\Software\Microsoft\Windows\CurrentVersion\Run\Atomic Red Team,Run key written by the T1547.001 test (verify the name in your Sysmon log),T1547.001
+command,schtasks /Create /SC ONCE /TN dfir_lab_task /TR cmd.exe,Scheduled task created by 01_run_atomics.ps1 fallback,T1053.005
+file,lsass-comsvcs.dmp,LSASS dump file name used by the comsvcs.dll atomic test (verify in your logs),T1003.001

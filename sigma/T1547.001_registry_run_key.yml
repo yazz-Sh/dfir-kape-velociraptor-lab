@@ -1,0 +1,22 @@
+title: Registry Run Key Persistence (T1547.001)
+id: 7f3c2a10-5b1e-4c0a-9d1f-2a6b8c4e1002
+status: experimental
+description: Detects a value being written under the Run or RunOnce registry keys (Sysmon Event ID 13).
+author: Your Name
+date: 2026/10/10
+tags:
+    - attack.persistence
+    - attack.privilege_escalation
+    - attack.t1547.001
+logsource:
+    category: registry_set
+    product: windows
+detection:
+    selection:
+        TargetObject|contains:
+            - '\Software\Microsoft\Windows\CurrentVersion\Run\'
+            - '\Software\Microsoft\Windows\CurrentVersion\RunOnce\'
+    condition: selection
+falsepositives:
+    - Legitimate software installers that register autostart entries
+level: medium

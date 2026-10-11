@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ r.title }}{% endblock %}
+{% block body %}
+<p><a href="/">&larr; Back to detections</a></p>
+<div class="card">
+  <h2>{{ r.title }} <span class="badge {{ r.level }}">{{ r.level }}</span></h2>
+  <p class="muted">{{ r.description }}</p>
+  <p>
+    {% for t in r.techniques %}<a class="tech" href="{{ technique_url(t) }}" target="_blank" rel="noopener">{{ t }} {{ TECHNIQUES.get(t, '') }}</a>{% endfor %}
+    {% if r.tactics %}<span class="muted">Tactics: {{ r.tactics|join(', ') }}</span>{% endif %}
+  </p>
+  <p>{{ r.count }} matching event(s) in <span class="mono">{{ r.file }}</span></p>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <h2>Matching events{% if matches|length < r.count %} (first {{ matches|length }}){% endif %}</h2>
+  <table>
+    <tr>{% for c in cols %}<th>{{ c }}</th>{% endfor %}</tr>
+    {% for m in matches %}
+    <tr>{% for c in cols %}<td class="mono">{{ m.get(c, '') }}</td>{% endfor %}</tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <h2>Raw first event</h2>
+  <pre>{{ (matches[0] if matches else {}) | tojson(indent=2) }}</pre>
+</div>
+{% endblock %}

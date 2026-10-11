@@ -1,0 +1,38 @@
+title: LSASS Memory Access With Suspicious Rights (T1003.001)
+id: 7f3c2a10-5b1e-4c0a-9d1f-2a6b8c4e1004
+status: experimental
+description: Detects a process opening lsass.exe with access rights typical of credential dumping (Sysmon Event ID 10).
+author: Your Name
+date: 2026/10/10
+tags:
+    - attack.credential_access
+    - attack.t1003.001
+logsource:
+    category: process_access
+    product: windows
+detection:
+    selection:
+        TargetImage|endswith: '\lsass.exe'
+        GrantedAccess:
+            - '0x1010'
+            - '0x1410'
+            - '0x1418'
+            - '0x1438'
+            - '0x143a'
+            - '0x147a'
+            - '0x1f0fff'
+            - '0x1f1fff'
+            - '0x1f3fff'
+            - '0x1fffff'
+    filter_legit:
+        SourceImage|endswith:
+            - '\MsMpEng.exe'
+            - '\csrss.exe'
+            - '\wininit.exe'
+            - '\wmiprvse.exe'
+            - '\VBoxService.exe'
+            - '\vmtoolsd.exe'
+    condition: selection and not filter_legit
+falsepositives:
+    - Endpoint security products and monitoring agents (extend the filter after reviewing results)
+level: high

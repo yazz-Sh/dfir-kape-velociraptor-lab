@@ -1,0 +1,37 @@
+title: Suspicious PowerShell Command Line (T1059.001)
+id: 7f3c2a10-5b1e-4c0a-9d1f-2a6b8c4e1001
+status: experimental
+description: Detects PowerShell started with encoded, hidden-window or download-cradle arguments, as produced by Atomic Red Team T1059.001 tests.
+author: Your Name
+date: 2026/10/10
+tags:
+    - attack.execution
+    - attack.t1059.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        Image|endswith:
+            - '\powershell.exe'
+            - '\pwsh.exe'
+    selection_cli:
+        CommandLine|contains:
+            - ' -enc'
+            - ' -ec '
+            - 'EncodedCommand'
+            - 'FromBase64String'
+            - 'IEX '
+            - 'IEX('
+            - 'Invoke-Expression'
+            - 'DownloadString'
+            - 'DownloadFile'
+            - 'Net.WebClient'
+            - 'Invoke-WebRequest'
+            - '-WindowStyle Hidden'
+            - '-w hidden'
+            - ' -nop'
+    condition: selection_img and selection_cli
+falsepositives:
+    - Administrative scripts and software deployment tools
+level: medium

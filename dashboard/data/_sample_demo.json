@@ -1,0 +1,34 @@
+[
+  {
+    "title": "Registry Run Key Persistence (T1547.001)",
+    "id": "7f3c2a10-5b1e-4c0a-9d1f-2a6b8c4e1002",
+    "description": "Detects a value being written under the Run or RunOnce registry keys.",
+    "rule_level": "medium",
+    "tags": ["attack.persistence", "attack.t1547.001"],
+    "count": 1,
+    "matches": [
+      {"SystemTime": "2026-10-10T17:02:11.120Z", "EventID": 13, "Computer": "VICTIM-DFIR",
+       "Image": "C:\\Windows\\System32\\reg.exe",
+       "TargetObject": "HKU\\S-1-5-21-0\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\DEMO",
+       "Details": "C:\\demo\\demo.exe", "User": "VICTIM\\demo"}
+    ]
+  },
+  {
+    "title": "LSASS Dump Command Line (T1003.001)",
+    "id": "7f3c2a10-5b1e-4c0a-9d1f-2a6b8c4e1005",
+    "description": "Detects command lines used to dump LSASS memory.",
+    "rule_level": "high",
+    "tags": ["attack.credential_access", "attack.t1003.001"],
+    "count": 2,
+    "matches": [
+      {"SystemTime": "2026-10-10T17:20:45.000Z", "EventID": 1, "Computer": "VICTIM-DFIR",
+       "Image": "C:\\Windows\\System32\\rundll32.exe",
+       "CommandLine": "rundll32.exe comsvcs.dll, MiniDump 123 C:\\demo.dmp full",
+       "ParentImage": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+       "Hashes": "SHA256=0000000000000000000000000000000000000000000000000000000000000001"},
+      {"SystemTime": "2026-10-10T17:20:47.000Z", "EventID": 1, "Computer": "VICTIM-DFIR",
+       "Image": "C:\\Windows\\System32\\rundll32.exe",
+       "CommandLine": "rundll32.exe comsvcs.dll, MiniDump 123 C:\\demo2.dmp full"}
+    ]
+  }
+]

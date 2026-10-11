@@ -1,0 +1,31 @@
+title: Scheduled Task Creation (T1053.005)
+id: 7f3c2a10-5b1e-4c0a-9d1f-2a6b8c4e1003
+status: experimental
+description: Detects scheduled task creation through schtasks.exe or the PowerShell ScheduledTasks cmdlets.
+author: Your Name
+date: 2026/10/10
+tags:
+    - attack.execution
+    - attack.persistence
+    - attack.privilege_escalation
+    - attack.t1053.005
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_schtasks:
+        Image|endswith: '\schtasks.exe'
+        CommandLine|contains:
+            - '/create'
+            - ' -create'
+    selection_powershell:
+        Image|endswith:
+            - '\powershell.exe'
+            - '\pwsh.exe'
+        CommandLine|contains:
+            - 'Register-ScheduledTask'
+            - 'New-ScheduledTask'
+    condition: selection_schtasks or selection_powershell
+falsepositives:
+    - Software updaters and administrators creating tasks
+level: medium

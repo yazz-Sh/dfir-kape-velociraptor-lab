@@ -1,0 +1,22 @@
+# raw evidence is not committed (hashes.txt documents it); detection results in dashboard/data/ are committed
+logs/*.evtx
+build/
+__pycache__/
+*.pyc
+.venv/
+.env
+*.key
+
+*.config.yaml
+*.dmp
+*.evtx
+.venv/
+Zircolite/
+kape_out/
+.env
+
+.venv312/
+.venv*/
+
+*.log
+dashboard/data_backup/

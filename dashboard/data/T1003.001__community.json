@@ -1,0 +1,106 @@
+[{
+  "title": "Process Memory Dump Via Comsvcs.DLL",
+  "id": "646ea171-dded-4578-8a4d-65e9822892e3",
+  "description": "Detects a process memory dump via \"comsvcs.dll\" using rundll32, covering multiple different techniques (ordinal, minidump function, etc.)",
+  "sigmafile": "rules/windows/process_creation/proc_creation_win_rundll32_process_dump_via_comsvcs.yml",
+  "sigma": [
+    "SELECT * FROM logs WHERE Channel='Microsoft-Windows-Sysmon/Operational' AND (EventID=1 AND (((Image LIKE '%\\\\rundll32.exe' ESCAPE '\\' OR OriginalFileName='RUNDLL32.EXE' OR CommandLine LIKE '%rundll32%' ESCAPE '\\') AND ((CommandLine LIKE '%comsvcs%' ESCAPE '\\' AND CommandLine LIKE '%full%' ESCAPE '\\') AND (CommandLine LIKE '%#-%' ESCAPE '\\' OR CommandLine LIKE '%#+%' ESCAPE '\\' OR CommandLine LIKE '%#24%' ESCAPE '\\' OR CommandLine LIKE '%24 %' ESCAPE '\\' OR CommandLine LIKE '%MiniDump%' ESCAPE '\\' OR CommandLine LIKE '%#65560%' ESCAPE '\\'))) OR ((CommandLine LIKE '%24%' ESCAPE '\\' AND CommandLine LIKE '%comsvcs%' ESCAPE '\\' AND CommandLine LIKE '%full%' ESCAPE '\\') AND (CommandLine LIKE '% #%' ESCAPE '\\' OR CommandLine LIKE '%,#%' ESCAPE '\\' OR CommandLine LIKE '%, #%' ESCAPE '\\' OR CommandLine LIKE '%\"#%' ESCAPE '\\'))))"
+  ],
+  "rule_level": "high",
+  "tags": [
+    "attack.credential-access",
+    "attack.stealth",
+    "attack.t1036",
+    "attack.t1003.001",
+    "car.2013-05-009"
+  ],
+  "count": 1
+,
+  "matches": [
+{"row_id":2,"Channel":"Microsoft-Windows-Sysmon/Operational","CommandLine":"\"C:\\WINDOWS\\system32\\rundll32.exe\" C:\\Windows\\System32\\comsvcs.dll MiniDump 828 C:\\Windows\\Temp\\lsass-comsvcs.dmp full","Company":"Microsoft Corporation","Computer":"DESKTOP-H5QIEPU","CurrentDirectory":"C:\\Users\\Victim-DFIR\\","Description":"Windows host process (Rundll32)","EventID":1,"EventRecordID":15456,"Execution_ProcessID":3128,"Execution_ThreadID":4068,"FileVersion":"10.0.26100.7309 (WinBuild.160101.0800)","Guid":"5770385F-C22A-43E0-BF4C-06F5698FFBD9","Hashes":"MD5=BB65029E6ADC1C632492BCFB948E495B,SHA256=4193F529BFF2729769D82CB83EE206D2AF16C59208D6DC5CD8B54CD9C6703A11,IMPHASH=C8B70D465C35D895C4171BAF042BB63A","IMPHASH":"C8B70D465C35D895C4171BAF042BB63A","Image":"C:\\Windows\\System32\\rundll32.exe","IntegrityLevel":"High","Keywords":"0x8000000000000000","Level":4,"LogonGuid":"1585FEFF-7914-6ACA-7AC4-070000000000","LogonId":"0x7c47a","MD5":"BB65029E6ADC1C632492BCFB948E495B","Opcode":0,"OriginalFileName":"RUNDLL32.EXE","OriginalLogfile":"T1003.001.evtx","ParentCommandLine":"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","ParentImage":"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","ParentProcessGuid":"1585FEFF-796A-6ACA-E800-000000000E00","ParentProcessId":816,"ParentUser":"DESKTOP-H5QIEPU\\Victim-DFIR","ProcessGuid":"1585FEFF-85F8-6ACA-1E04-000000000E00","ProcessId":10384,"Product":"Microsoft® Windows® Operating System","Provider_Name":"Microsoft-Windows-Sysmon","RuleName":"-","SHA256":"4193F529BFF2729769D82CB83EE206D2AF16C59208D6DC5CD8B54CD9C6703A11","SystemTime":"2026-10-10T18:37:44.398269Z","Task":1,"TerminalSessionId":1,"User":"DESKTOP-H5QIEPU\\Victim-DFIR","UserID":"S-1-5-18","UtcTime":"2026-10-10 18:37:44.397","Version":5}
+
+  ]
+},
+{
+  "title": "Suspicious Eventlog Clearing or Configuration Change Activity",
+  "id": "cc36992a-4671-4f21-a91d-6c2b72a2edf5",
+  "description": "Detects the clearing or configuration tampering of EventLog using utilities such as \"wevtutil\", \"powershell\" and \"wmic\".\nThis technique were seen used by threat actors and ransomware strains in order to evade defenses.\n",
+  "sigmafile": "rules/windows/process_creation/proc_creation_win_susp_eventlog_clear.yml",
+  "sigma": [
+    "SELECT * FROM logs WHERE Channel='Microsoft-Windows-Sysmon/Operational' AND (EventID=1 AND ((((Image LIKE '%\\\\wevtutil.exe' ESCAPE '\\' OR OriginalFileName='wevtutil.exe') AND (CommandLine LIKE '%clear-log %' ESCAPE '\\' OR CommandLine LIKE '% cl %' ESCAPE '\\' OR CommandLine LIKE '%set-log %' ESCAPE '\\' OR CommandLine LIKE '% sl %' ESCAPE '\\' OR CommandLine LIKE '%lfn:%' ESCAPE '\\')) OR ((Image LIKE '%\\\\powershell.exe' ESCAPE '\\' OR Image LIKE '%\\\\powershell\\_ise.exe' ESCAPE '\\' OR Image LIKE '%\\\\pwsh.exe' ESCAPE '\\') AND ((CommandLine LIKE '%Clear-EventLog %' ESCAPE '\\' OR CommandLine LIKE '%Remove-EventLog %' ESCAPE '\\' OR CommandLine LIKE '%Limit-EventLog %' ESCAPE '\\' OR CommandLine LIKE '%Clear-WinEvent %' ESCAPE '\\') OR (CommandLine LIKE '%Eventing.Reader.EventLogSession%' ESCAPE '\\' AND CommandLine LIKE '%ClearLog%' ESCAPE '\\') OR (CommandLine LIKE '%Diagnostics.EventLog%' ESCAPE '\\' AND CommandLine LIKE '%Clear%' ESCAPE '\\'))) OR ((Image LIKE '%\\\\powershell.exe' ESCAPE '\\' OR Image LIKE '%\\\\powershell\\_ise.exe' ESCAPE '\\' OR Image LIKE '%\\\\pwsh.exe' ESCAPE '\\' OR Image LIKE '%\\\\wmic.exe' ESCAPE '\\') AND CommandLine LIKE '%ClearEventLog%' ESCAPE '\\')) AND (NOT COALESCE(((ParentImage LIKE 'C:\\\\Windows\\\\SysWOW64\\\\msiexec.exe' ESCAPE '\\' OR ParentImage LIKE 'C:\\\\Windows\\\\System32\\\\msiexec.exe' ESCAPE '\\') AND CommandLine LIKE '% sl %' ESCAPE '\\'), 0))))"
+  ],
+  "rule_level": "high",
+  "tags": [
+    "attack.defense-impairment",
+    "attack.t1685.005",
+    "attack.t1685.001",
+    "car.2016-04-002"
+  ],
+  "count": 1
+,
+  "matches": [
+{"row_id":1,"Channel":"Microsoft-Windows-Sysmon/Operational","CommandLine":"\"C:\\WINDOWS\\system32\\wevtutil.exe\" cl Microsoft-Windows-Sysmon/Operational","Company":"Microsoft Corporation","Computer":"DESKTOP-H5QIEPU","CurrentDirectory":"C:\\Users\\Victim-DFIR\\","Description":"Windows Event Log Utility","EventID":1,"EventRecordID":15455,"Execution_ProcessID":3128,"Execution_ThreadID":4068,"FileVersion":"10.0.26100.7019 (WinBuild.160101.0800)","Guid":"5770385F-C22A-43E0-BF4C-06F5698FFBD9","Hashes":"MD5=2BABE79C35853B32AC4B39B8539BAC42,SHA256=3C4C4FE2FC5590A6AF5E5F73B7277DA8785695E6A131D255943A88E43CDD2A6A,IMPHASH=9D0B0164498DEE3DA72DF328E7AE8C0B","IMPHASH":"9D0B0164498DEE3DA72DF328E7AE8C0B","Image":"C:\\Windows\\System32\\wevtutil.exe","IntegrityLevel":"High","Keywords":"0x8000000000000000","Level":4,"LogonGuid":"1585FEFF-7914-6ACA-7AC4-070000000000","LogonId":"0x7c47a","MD5":"2BABE79C35853B32AC4B39B8539BAC42","Opcode":0,"OriginalFileName":"wevtutil.exe","OriginalLogfile":"T1003.001.evtx","ParentCommandLine":"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","ParentImage":"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","ParentProcessGuid":"1585FEFF-796A-6ACA-E800-000000000E00","ParentProcessId":816,"ParentUser":"DESKTOP-H5QIEPU\\Victim-DFIR","ProcessGuid":"1585FEFF-85F6-6ACA-1D04-000000000E00","ProcessId":13540,"Product":"Microsoft® Windows® Operating System","Provider_Name":"Microsoft-Windows-Sysmon","RuleName":"-","SHA256":"3C4C4FE2FC5590A6AF5E5F73B7277DA8785695E6A131D255943A88E43CDD2A6A","SystemTime":"2026-10-10T18:37:42.332816Z","Task":1,"TerminalSessionId":1,"User":"DESKTOP-H5QIEPU\\Victim-DFIR","UserID":"S-1-5-18","UtcTime":"2026-10-10 18:37:42.331","Version":5}
+
+  ]
+},
+{
+  "title": "LSASS Dump Keyword In CommandLine",
+  "id": "ffa6861c-4461-4f59-8a41-578c39f3f23e",
+  "description": "Detects the presence of the keywords \"lsass\" and \".dmp\" in the commandline, which could indicate a potential attempt to dump or create a dump of the lsass process.\n",
+  "sigmafile": "rules/windows/process_creation/proc_creation_win_susp_lsass_dmp_cli_keywords.yml",
+  "sigma": [
+    "SELECT * FROM logs WHERE Channel='Microsoft-Windows-Sysmon/Operational' AND (EventID=1 AND ((CommandLine LIKE '%lsass.dmp%' ESCAPE '\\' OR CommandLine LIKE '%lsass.zip%' ESCAPE '\\' OR CommandLine LIKE '%lsass.rar%' ESCAPE '\\' OR CommandLine LIKE '%Andrew.dmp%' ESCAPE '\\' OR CommandLine LIKE '%Coredump.dmp%' ESCAPE '\\' OR CommandLine LIKE '%NotLSASS.zip%' ESCAPE '\\' OR CommandLine LIKE '%lsass\\_2%' ESCAPE '\\' OR CommandLine LIKE '%lsassdump%' ESCAPE '\\' OR CommandLine LIKE '%lsassdmp%' ESCAPE '\\') OR (CommandLine LIKE '%lsass%' ESCAPE '\\' AND CommandLine LIKE '%.dmp%' ESCAPE '\\') OR (CommandLine LIKE '%SQLDmpr%' ESCAPE '\\' AND CommandLine LIKE '%.mdmp%' ESCAPE '\\') OR (CommandLine LIKE '%nanodump%' ESCAPE '\\' AND CommandLine LIKE '%.dmp%' ESCAPE '\\')))"
+  ],
+  "rule_level": "high",
+  "tags": [
+    "attack.credential-access",
+    "attack.t1003.001"
+  ],
+  "count": 1
+,
+  "matches": [
+{"row_id":2,"Channel":"Microsoft-Windows-Sysmon/Operational","CommandLine":"\"C:\\WINDOWS\\system32\\rundll32.exe\" C:\\Windows\\System32\\comsvcs.dll MiniDump 828 C:\\Windows\\Temp\\lsass-comsvcs.dmp full","Company":"Microsoft Corporation","Computer":"DESKTOP-H5QIEPU","CurrentDirectory":"C:\\Users\\Victim-DFIR\\","Description":"Windows host process (Rundll32)","EventID":1,"EventRecordID":15456,"Execution_ProcessID":3128,"Execution_ThreadID":4068,"FileVersion":"10.0.26100.7309 (WinBuild.160101.0800)","Guid":"5770385F-C22A-43E0-BF4C-06F5698FFBD9","Hashes":"MD5=BB65029E6ADC1C632492BCFB948E495B,SHA256=4193F529BFF2729769D82CB83EE206D2AF16C59208D6DC5CD8B54CD9C6703A11,IMPHASH=C8B70D465C35D895C4171BAF042BB63A","IMPHASH":"C8B70D465C35D895C4171BAF042BB63A","Image":"C:\\Windows\\System32\\rundll32.exe","IntegrityLevel":"High","Keywords":"0x8000000000000000","Level":4,"LogonGuid":"1585FEFF-7914-6ACA-7AC4-070000000000","LogonId":"0x7c47a","MD5":"BB65029E6ADC1C632492BCFB948E495B","Opcode":0,"OriginalFileName":"RUNDLL32.EXE","OriginalLogfile":"T1003.001.evtx","ParentCommandLine":"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","ParentImage":"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","ParentProcessGuid":"1585FEFF-796A-6ACA-E800-000000000E00","ParentProcessId":816,"ParentUser":"DESKTOP-H5QIEPU\\Victim-DFIR","ProcessGuid":"1585FEFF-85F8-6ACA-1E04-000000000E00","ProcessId":10384,"Product":"Microsoft® Windows® Operating System","Provider_Name":"Microsoft-Windows-Sysmon","RuleName":"-","SHA256":"4193F529BFF2729769D82CB83EE206D2AF16C59208D6DC5CD8B54CD9C6703A11","SystemTime":"2026-10-10T18:37:44.398269Z","Task":1,"TerminalSessionId":1,"User":"DESKTOP-H5QIEPU\\Victim-DFIR","UserID":"S-1-5-18","UtcTime":"2026-10-10 18:37:44.397","Version":5}
+
+  ]
+},
+{
+  "title": "Potentially Suspicious PowerShell Child Processes",
+  "id": "e4b6d2a7-d8a4-4f19-acbd-943c16d90647",
+  "description": "Detects potentially suspicious child processes spawned by PowerShell.\nUse this rule to hunt for potential anomalies initiating from PowerShell scripts and commands.\n",
+  "sigmafile": "rules-threat-hunting/windows/process_creation/proc_creation_win_powershell_susp_child_processes.yml",
+  "sigma": [
+    "SELECT * FROM logs WHERE Channel='Microsoft-Windows-Sysmon/Operational' AND (EventID=1 AND (((ParentImage LIKE '%\\\\powershell\\_ise.exe' ESCAPE '\\' OR ParentImage LIKE '%\\\\powershell.exe' ESCAPE '\\' OR ParentImage LIKE '%\\\\pwsh.exe' ESCAPE '\\') AND (Image LIKE '%\\\\bash.exe' ESCAPE '\\' OR Image LIKE '%\\\\bitsadmin.exe' ESCAPE '\\' OR Image LIKE '%\\\\certutil.exe' ESCAPE '\\' OR Image LIKE '%\\\\cscript.exe' ESCAPE '\\' OR Image LIKE '%\\\\forfiles.exe' ESCAPE '\\' OR Image LIKE '%\\\\hh.exe' ESCAPE '\\' OR Image LIKE '%\\\\mshta.exe' ESCAPE '\\' OR Image LIKE '%\\\\regsvr32.exe' ESCAPE '\\' OR Image LIKE '%\\\\rundll32.exe' ESCAPE '\\' OR Image LIKE '%\\\\schtasks.exe' ESCAPE '\\' OR Image LIKE '%\\\\scrcons.exe' ESCAPE '\\' OR Image LIKE '%\\\\scriptrunner.exe' ESCAPE '\\' OR Image LIKE '%\\\\sh.exe' ESCAPE '\\' OR Image LIKE '%\\\\wmic.exe' ESCAPE '\\' OR Image LIKE '%\\\\wscript.exe' ESCAPE '\\')) AND (NOT COALESCE(((Image LIKE '%\\\\certutil.exe' ESCAPE '\\' AND CommandLine LIKE '%-verifystore %' ESCAPE '\\') OR (Image LIKE '%\\\\wmic.exe' ESCAPE '\\' AND (CommandLine LIKE '%qfe list%' ESCAPE '\\' OR CommandLine LIKE '%diskdrive %' ESCAPE '\\' OR CommandLine LIKE '%csproduct %' ESCAPE '\\' OR CommandLine LIKE '%computersystem %' ESCAPE '\\' OR CommandLine LIKE '% os %' ESCAPE '\\' OR CommandLine LIKE '%' ESCAPE '\\'))), 0)) AND (NOT COALESCE((ParentCommandLine LIKE '%\\\\Program Files\\\\Amazon\\\\WorkspacesConfig\\\\Scripts\\\\%' ESCAPE '\\' AND CommandLine LIKE '%\\\\Program Files\\\\Amazon\\\\WorkspacesConfig\\\\Scripts\\\\%' ESCAPE '\\'), 0))))"
+  ],
+  "rule_level": "medium",
+  "tags": [
+    "attack.execution",
+    "attack.t1059.001",
+    "detection.threat-hunting"
+  ],
+  "count": 1
+,
+  "matches": [
+{"row_id":2,"Channel":"Microsoft-Windows-Sysmon/Operational","CommandLine":"\"C:\\WINDOWS\\system32\\rundll32.exe\" C:\\Windows\\System32\\comsvcs.dll MiniDump 828 C:\\Windows\\Temp\\lsass-comsvcs.dmp full","Company":"Microsoft Corporation","Computer":"DESKTOP-H5QIEPU","CurrentDirectory":"C:\\Users\\Victim-DFIR\\","Description":"Windows host process (Rundll32)","EventID":1,"EventRecordID":15456,"Execution_ProcessID":3128,"Execution_ThreadID":4068,"FileVersion":"10.0.26100.7309 (WinBuild.160101.0800)","Guid":"5770385F-C22A-43E0-BF4C-06F5698FFBD9","Hashes":"MD5=BB65029E6ADC1C632492BCFB948E495B,SHA256=4193F529BFF2729769D82CB83EE206D2AF16C59208D6DC5CD8B54CD9C6703A11,IMPHASH=C8B70D465C35D895C4171BAF042BB63A","IMPHASH":"C8B70D465C35D895C4171BAF042BB63A","Image":"C:\\Windows\\System32\\rundll32.exe","IntegrityLevel":"High","Keywords":"0x8000000000000000","Level":4,"LogonGuid":"1585FEFF-7914-6ACA-7AC4-070000000000","LogonId":"0x7c47a","MD5":"BB65029E6ADC1C632492BCFB948E495B","Opcode":0,"OriginalFileName":"RUNDLL32.EXE","OriginalLogfile":"T1003.001.evtx","ParentCommandLine":"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","ParentImage":"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","ParentProcessGuid":"1585FEFF-796A-6ACA-E800-000000000E00","ParentProcessId":816,"ParentUser":"DESKTOP-H5QIEPU\\Victim-DFIR","ProcessGuid":"1585FEFF-85F8-6ACA-1E04-000000000E00","ProcessId":10384,"Product":"Microsoft® Windows® Operating System","Provider_Name":"Microsoft-Windows-Sysmon","RuleName":"-","SHA256":"4193F529BFF2729769D82CB83EE206D2AF16C59208D6DC5CD8B54CD9C6703A11","SystemTime":"2026-10-10T18:37:44.398269Z","Task":1,"TerminalSessionId":1,"User":"DESKTOP-H5QIEPU\\Victim-DFIR","UserID":"S-1-5-18","UtcTime":"2026-10-10 18:37:44.397","Version":5}
+
+  ]
+},
+{
+  "title": "Potentially Suspicious Rundll32 Activity",
+  "id": "e593cf51-88db-4ee1-b920-37e89012a3c9",
+  "description": "Detects suspicious execution of rundll32, with specific calls to some DLLs with known LOLBIN functionalities",
+  "sigmafile": "rules/windows/process_creation/proc_creation_win_rundll32_susp_activity.yml",
+  "sigma": [
+    "SELECT * FROM logs WHERE Channel='Microsoft-Windows-Sysmon/Operational' AND (EventID=1 AND (((CommandLine LIKE '%javascript:%' ESCAPE '\\' AND CommandLine LIKE '%.RegisterXLL%' ESCAPE '\\') OR (CommandLine LIKE '%url.dll%' ESCAPE '\\' AND CommandLine LIKE '%OpenURL%' ESCAPE '\\') OR (CommandLine LIKE '%url.dll%' ESCAPE '\\' AND CommandLine LIKE '%OpenURLA%' ESCAPE '\\') OR (CommandLine LIKE '%url.dll%' ESCAPE '\\' AND CommandLine LIKE '%FileProtocolHandler%' ESCAPE '\\') OR (CommandLine LIKE '%zipfldr.dll%' ESCAPE '\\' AND CommandLine LIKE '%RouteTheCall%' ESCAPE '\\') OR (CommandLine LIKE '%shell32.dll%' ESCAPE '\\' AND CommandLine LIKE '%Control\\_RunDLL%' ESCAPE '\\') OR (CommandLine LIKE '%shell32.dll%' ESCAPE '\\' AND CommandLine LIKE '%ShellExec\\_RunDLL%' ESCAPE '\\') OR (CommandLine LIKE '%mshtml.dll%' ESCAPE '\\' AND CommandLine LIKE '%PrintHTML%' ESCAPE '\\') OR (CommandLine LIKE '%advpack.dll%' ESCAPE '\\' AND CommandLine LIKE '%LaunchINFSection%' ESCAPE '\\') OR (CommandLine LIKE '%advpack.dll%' ESCAPE '\\' AND CommandLine LIKE '%RegisterOCX%' ESCAPE '\\') OR (CommandLine LIKE '%ieadvpack.dll%' ESCAPE '\\' AND CommandLine LIKE '%LaunchINFSection%' ESCAPE '\\') OR (CommandLine LIKE '%ieadvpack.dll%' ESCAPE '\\' AND CommandLine LIKE '%RegisterOCX%' ESCAPE '\\') OR (CommandLine LIKE '%ieframe.dll%' ESCAPE '\\' AND CommandLine LIKE '%OpenURL%' ESCAPE '\\') OR (CommandLine LIKE '%shdocvw.dll%' ESCAPE '\\' AND CommandLine LIKE '%OpenURL%' ESCAPE '\\') OR (CommandLine LIKE '%syssetup.dll%' ESCAPE '\\' AND CommandLine LIKE '%SetupInfObjectInstallAction%' ESCAPE '\\') OR (CommandLine LIKE '%setupapi.dll%' ESCAPE '\\' AND CommandLine LIKE '%InstallHinfSection%' ESCAPE '\\') OR (CommandLine LIKE '%pcwutl.dll%' ESCAPE '\\' AND CommandLine LIKE '%LaunchApplication%' ESCAPE '\\') OR (CommandLine LIKE '%dfshim.dll%' ESCAPE '\\' AND CommandLine LIKE '%ShOpenVerbApplication%' ESCAPE '\\') OR (CommandLine LIKE '%dfshim.dll%' ESCAPE '\\' AND CommandLine LIKE '%ShOpenVerbShortcut%' ESCAPE '\\') OR (CommandLine LIKE '%scrobj.dll%' ESCAPE '\\' AND CommandLine LIKE '%GenerateTypeLib%' ESCAPE '\\' AND CommandLine LIKE '%http%' ESCAPE '\\') OR (CommandLine LIKE '%shimgvw.dll%' ESCAPE '\\' AND CommandLine LIKE '%ImageView\\_Fullscreen%' ESCAPE '\\' AND CommandLine LIKE '%http%' ESCAPE '\\') OR (CommandLine LIKE '%comsvcs.dll%' ESCAPE '\\' AND CommandLine LIKE '%MiniDump%' ESCAPE '\\')) AND (NOT COALESCE((CommandLine LIKE '%shell32.dll,Control\\_RunDLL desk.cpl,screensaver,@screensaver%' ESCAPE '\\' OR (ParentImage LIKE 'C:\\\\Windows\\\\System32\\\\control.exe' ESCAPE '\\' AND ParentCommandLine LIKE '%.cpl%' ESCAPE '\\' AND (CommandLine LIKE '%Shell32.dll%' ESCAPE '\\' AND CommandLine LIKE '%Control\\_RunDLL%' ESCAPE '\\' AND CommandLine LIKE '%.cpl%' ESCAPE '\\')) OR (ParentImage LIKE 'C:\\\\Windows\\\\System32\\\\control.exe' ESCAPE '\\' AND CommandLine LIKE '\"C:\\\\Windows\\\\system32\\\\rundll32.exe\" Shell32.dll,Control\\_RunDLL \"C:\\\\Windows\\\\System32\\\\%' ESCAPE '\\' AND CommandLine LIKE '%.cpl\",' ESCAPE '\\')), 0))))"
+  ],
+  "rule_level": "medium",
+  "tags": [
+    "attack.stealth",
+    "attack.t1218.011"
+  ],
+  "count": 1
+,
+  "matches": [
+{"row_id":2,"Channel":"Microsoft-Windows-Sysmon/Operational","CommandLine":"\"C:\\WINDOWS\\system32\\rundll32.exe\" C:\\Windows\\System32\\comsvcs.dll MiniDump 828 C:\\Windows\\Temp\\lsass-comsvcs.dmp full","Company":"Microsoft Corporation","Computer":"DESKTOP-H5QIEPU","CurrentDirectory":"C:\\Users\\Victim-DFIR\\","Description":"Windows host process (Rundll32)","EventID":1,"EventRecordID":15456,"Execution_ProcessID":3128,"Execution_ThreadID":4068,"FileVersion":"10.0.26100.7309 (WinBuild.160101.0800)","Guid":"5770385F-C22A-43E0-BF4C-06F5698FFBD9","Hashes":"MD5=BB65029E6ADC1C632492BCFB948E495B,SHA256=4193F529BFF2729769D82CB83EE206D2AF16C59208D6DC5CD8B54CD9C6703A11,IMPHASH=C8B70D465C35D895C4171BAF042BB63A","IMPHASH":"C8B70D465C35D895C4171BAF042BB63A","Image":"C:\\Windows\\System32\\rundll32.exe","IntegrityLevel":"High","Keywords":"0x8000000000000000","Level":4,"LogonGuid":"1585FEFF-7914-6ACA-7AC4-070000000000","LogonId":"0x7c47a","MD5":"BB65029E6ADC1C632492BCFB948E495B","Opcode":0,"OriginalFileName":"RUNDLL32.EXE","OriginalLogfile":"T1003.001.evtx","ParentCommandLine":"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","ParentImage":"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","ParentProcessGuid":"1585FEFF-796A-6ACA-E800-000000000E00","ParentProcessId":816,"ParentUser":"DESKTOP-H5QIEPU\\Victim-DFIR","ProcessGuid":"1585FEFF-85F8-6ACA-1E04-000000000E00","ProcessId":10384,"Product":"Microsoft® Windows® Operating System","Provider_Name":"Microsoft-Windows-Sysmon","RuleName":"-","SHA256":"4193F529BFF2729769D82CB83EE206D2AF16C59208D6DC5CD8B54CD9C6703A11","SystemTime":"2026-10-10T18:37:44.398269Z","Task":1,"TerminalSessionId":1,"User":"DESKTOP-H5QIEPU\\Victim-DFIR","UserID":"S-1-5-18","UtcTime":"2026-10-10 18:37:44.397","Version":5}
+
+  ]
+}]

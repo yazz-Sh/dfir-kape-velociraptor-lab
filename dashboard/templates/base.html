@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}DFIR Dashboard{% endblock %}</title>
+<style>
+  :root { --bg:#f5f6f8; --card:#fff; --ink:#1b2430; --muted:#667085; --line:#e1e4ea; --accent:#1f3864;
+          --critical:#7a1fa2; --high:#c62828; --medium:#e08a00; --low:#2e7d32; --informational:#546e7a; --unknown:#546e7a; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f141b; --card:#171e28; --ink:#e6eaf0; --muted:#95a1b3; --line:#2a3342; --accent:#7ea6ff; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.45 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background:var(--bg); color:var(--ink); }
+  header { background:#1f3864; color:#fff; padding:14px 24px; }
+  header h1 { margin:0; font-size:18px; }
+  header small { opacity:.8; }
+  main { max-width:1280px; margin:0 auto; padding:20px 24px 48px; }
+  .banner { background:#fff3cd; color:#664d03; padding:8px 24px; font-weight:600; }
+  .grid { display:grid; gap:16px; }
+  .stats { grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); }
+  .two { grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); margin-top:16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; overflow-x:auto; }
+  .card h2 { margin:0 0 10px; font-size:15px; }
+  .stat b { display:block; font-size:28px; }
+  .stat span { color:var(--muted); }
+  table { border-collapse:collapse; width:100%; }
+  th, td { text-align:left; padding:7px 9px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); white-space:nowrap; }
+  td.mono, .mono { font-family:ui-monospace, Consolas, monospace; font-size:12px; word-break:break-all; }
+  .badge { display:inline-block; padding:2px 8px; border-radius:99px; color:#fff; font-size:12px; font-weight:600; }
+  .badge.critical{background:var(--critical)} .badge.high{background:var(--high)} .badge.medium{background:var(--medium)}
+  .badge.low{background:var(--low)} .badge.informational,.badge.unknown{background:var(--informational)}
+  .tech { display:inline-block; border:1px solid var(--line); border-radius:6px; padding:1px 6px; margin:1px 2px 1px 0; font-size:12px; text-decoration:none; color:var(--accent); }
+  form.filters { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+  input, select, button { font:inherit; padding:6px 10px; border:1px solid var(--line); border-radius:6px; background:var(--card); color:var(--ink); }
+  button { background:var(--accent); color:#fff; border-color:var(--accent); cursor:pointer; }
+  a { color:var(--accent); }
+  .bar { height:10px; background:var(--accent); border-radius:5px; min-width:2px; }
+  .ok { color:var(--low); font-weight:600; } .miss { color:var(--high); font-weight:600; }
+  .muted { color:var(--muted); }
+  pre { background:var(--bg); padding:10px; border-radius:6px; overflow:auto; max-height:360px; }
+</style>
+</head>
+<body>
+<header><h1>DFIR Threat Hunting Dashboard</h1><small>Simulation &rarr; detection &rarr; ATT&amp;CK mapping &rarr; IOCs</small></header>
+{% if demo %}<div class="banner">DEMO MODE: sample data is loaded for UI testing only. Do not use it for the report.</div>{% endif %}
+<main>{% block body %}{% endblock %}</main>
+</body>
+</html>

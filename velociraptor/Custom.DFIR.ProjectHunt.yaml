@@ -1,0 +1,42 @@
+name: Custom.DFIR.ProjectHunt
+description: |
+  Hunting queries for the DFIR project (ATT&CK T1059.001, T1547.001, T1053.005, T1003.001).
+  Add it in the GUI: View Artifacts -> Add an artifact (+), paste this file, Save.
+  Then: select the client -> Collected -> New Collection -> search "Custom.DFIR" -> Launch.
+type: CLIENT
+sources:
+  - name: SuspiciousProcesses
+    query: |
+      SELECT Pid, Ppid, Name, Exe, CommandLine, Username
+      FROM pslist()
+      WHERE Name =~ "(?i)powershell|pwsh|rundll32|schtasks"
+
+  - name: RunKeys
+    query: |
+      SELECT FullPath, Mtime, Data.value AS Value
+      FROM glob(globs=[
+        "HKEY_USERS/*/Software/Microsoft/Windows/CurrentVersion/Run/*",
+        "HKEY_USERS/*/Software/Microsoft/Windows/CurrentVersion/RunOnce/*",
+        "HKEY_LOCAL_MACHINE/Software/Microsoft/Windows/CurrentVersion/Run/*"],
+        accessor="registry")
+
+  - name: ScheduledTaskFiles
+    query: |
+      SELECT OSPath, Size, Mtime
+      FROM glob(globs="C:/Windows/System32/Tasks/**")
+      WHERE NOT IsDir
+
+  - name: LsassDumpFiles
+    query: |
+      SELECT OSPath, Size, Mtime
+      FROM glob(globs=["C:/Users/*/AppData/Local/Temp/*.dmp", "C:/Windows/Temp/*.dmp"])
+
+  - name: SysmonSuspiciousCommandLines
+    query: |
+      SELECT timestamp(epoch=System.TimeCreated.SystemTime) AS Time,
+             EventData.Image AS Image,
+             EventData.CommandLine AS CommandLine,
+             EventData.ParentImage AS Parent
+      FROM parse_evtx(filename="C:/Windows/System32/winevt/Logs/Microsoft-Windows-Sysmon%4Operational.evtx")
+      WHERE System.EventID.Value = 1
+        AND EventData.CommandLine =~ "(?i)-enc|encodedcommand|schtasks.*/create|comsvcs.*minidump"

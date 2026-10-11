@@ -1,0 +1,1 @@
+rundll32 comsvcs.dll, MiniDump 123 C:\d.dmp full

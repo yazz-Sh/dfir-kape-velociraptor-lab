@@ -1,0 +1,42 @@
+-- Velociraptor VQL queries for remote threat hunting.
+-- Run them in the GUI: select the client -> Collected / "Shell" or Notebook, or via a Hunt.
+-- Column names can vary slightly between Velociraptor versions: if a query errors, run it with
+-- "SELECT * FROM ..." first, look at the columns, and adjust.
+
+-- 1) Suspicious processes (T1059.001)
+SELECT Pid, Ppid, Name, Exe, CommandLine, Username
+FROM pslist()
+WHERE Name =~ "(?i)powershell|pwsh|rundll32|schtasks|cmd"
+
+-- 2) Run-key persistence (T1547.001)
+SELECT FullPath, Mtime, Data.value AS Value
+FROM glob(globs=[
+    "HKEY_USERS/*/Software/Microsoft/Windows/CurrentVersion/Run/*",
+    "HKEY_USERS/*/Software/Microsoft/Windows/CurrentVersion/RunOnce/*",
+    "HKEY_LOCAL_MACHINE/Software/Microsoft/Windows/CurrentVersion/Run/*"],
+    accessor="registry")
+
+-- 3) Scheduled tasks on disk (T1053.005)
+SELECT OSPath, Size, Mtime
+FROM glob(globs="C:/Windows/System32/Tasks/**")
+WHERE NOT IsDir
+
+-- 4) LSASS dump files (T1003.001)
+SELECT OSPath, Size, Mtime
+FROM glob(globs=["C:/Users/*/AppData/Local/Temp/*.dmp", "C:/Windows/Temp/*.dmp"])
+
+-- 5) Hunt the Sysmon log remotely: process creation with suspicious command lines
+SELECT timestamp(epoch=System.TimeCreated.SystemTime) AS Time,
+       EventData.Image AS Image,
+       EventData.CommandLine AS CommandLine,
+       EventData.ParentImage AS Parent
+FROM parse_evtx(filename="C:/Windows/System32/winevt/Logs/Microsoft-Windows-Sysmon%4Operational.evtx")
+WHERE System.EventID.Value = 1
+  AND EventData.CommandLine =~ "(?i)-enc|encodedcommand|schtasks.*/create|comsvcs.*minidump"
+
+-- 6) Run the project's YARA rule remotely on the Temp folders (paste the rule text into `rules`)
+SELECT * FROM yara(
+    rules='rule Atomic_Marker { strings: $a = "Atomic Red Team" nocase condition: $a }',
+    files=glob(globs="C:/Users/*/AppData/Local/Temp/**"),
+    accessor="auto")
+LIMIT 50
